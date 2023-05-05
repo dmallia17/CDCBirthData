@@ -1,0 +1,25 @@
+---
+title: "CDC Birth Data Review"
+author: "Daniel Mallia"
+output: html_notebook
+---
+
+This notebook contains my review and refinement of the [CDC Birth Data](
+https://www.cdc.gov/nchs/data_access/Vitalstatsonline.htm), beginning with the
+2013 year data, down to datasets which can permit helpful supervised and
+unsupervised learning. Packages that enable R to interact with databases and
+R Notebook allowing us to use multiple languages side-by-side means that we 
+should be able to present most, if not all, of the work involved in this 
+one notebook.
+
+### Background
+
+
+### Setup
+
+
+### Helpful resources on working with R, R Notebook and databases:
+- https://nuitrcs.github.io/databases_workshop/r/r_databases.html
+- https://posit.co/blog/working-with-databases-and-sql-in-rstudio/
+
+

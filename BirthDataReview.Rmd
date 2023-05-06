@@ -7,15 +7,88 @@ output: html_notebook
 This notebook contains my review and refinement of the [CDC Birth Data](
 https://www.cdc.gov/nchs/data_access/Vitalstatsonline.htm), beginning with the
 2013 year data, down to datasets which can permit helpful supervised and
-unsupervised learning. Packages that enable R to interact with databases and
-R Notebook allowing us to use multiple languages side-by-side means that we 
-should be able to present most, if not all, of the work involved in this 
-one notebook.
+unsupervised learning. Packages that enable R to interact with databases (here
+a PostgreSQL database) and R Notebook allowing us to use multiple languages
+side-by-side means that weshould be able to present most, if not all, of the
+work involved in this one notebook.
 
 ### Background
 
+The 2013 data consists of 3,940,764 instances described by 280 columns.
 
 ### Setup
+#### Getting the 2013 data
+Multiple shell commands may be called in one block, each on a new line. The file
+is fairly large (~2.7GB), so this may take a little bit!
+```{zsh}
+curl -o natl2013.csv.zip https://data.nber.org/natality/2013/natl2013.csv.zip
+unzip natl2013.csv.zip
+rm natl2013.csv.zip
+```
+
+#### Database setup
+As mentioned above, I'll be using a PostgreSQL database here. As I am running on
+a Mac, I used one of the simple setup options which is to install
+[Postgres.app](https://postgresapp.com). Once that is installed (including
+command line tools) you can start the server as follows, where we specify the
+data directory that can be found under server settings the first time you launch
+the app. We launch the process in the background, so as not to block execution
+of any of the below chunks.
+```{zsh}
+# If you don't put the path in quotes, the space in the path will cause issues
+postgres -D "/Users/danielmallia/Library/Application Support/Postgres/var-15" &
+```
+
+Whenever you are ready to stop the server, you can execute the below.
+```{zsh}
+pkill postgres
+```
+
+Now we can create our database
+```{zsh}
+createdb cdcdata
+```
+
+
+#### Loading the data into our database
+This work depends on the DBI and RPostgres package, which can be installed with
+the below.
+```{r}
+if(!'DBI' %in% installed.packages()){
+  install.packages("DBI")
+}
+if(!'RPostgres' %in% installed.packages()){
+  install.packages("RPostgres")
+}
+```
+
+Create our connection with the newly created database
+```{r}
+library(RPostgres)
+con <- DBI::dbConnect(Postgres(), dbname="cdcdata")
+```
+
+PostgreSQL supports a COPY command to copy the contents of a file, such as csv,
+to a database table. However, this requires that the table has already been
+created; this is no small task for such a large dataset, as we will need to
+declare the type of each column. Thankfully, the RPostgres package has
+a method to automatically manage converting an R dataframe into a database
+table. Thus we can use R as a convenient middle man for loading large data files
+into our database. NOTE: This takes quite a while.
+```{r}
+df <- read.csv("natl2013.csv")
+dbWriteTable(con, "b2013", df)
+```
+
+We can double check that the transfer has been successful with a quick check
+on the number of rows...
+```{sql, connection=con}
+SELECT COUNT(*) FROM b2013
+```
+And we can view the table specification...
+```{r}
+dbColumnInfo(dbSendQuery(con,"SELECT * FROM b2013 LIMIT 1"))
+```
 
 
 ### Helpful resources on working with R, R Notebook and databases:

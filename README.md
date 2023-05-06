@@ -23,9 +23,9 @@ learning to understand relationships in the data.
 ### To-do:
 Review:
 - [ ] Add data background
-- [ ] Retrieve the 2013 data
-- [ ] Create a database for this project
-- [ ] Load the data (.csv file) into the database
+- [x] Retrieve the 2013 data
+- [x] Create a database for this project
+- [x] Load the data (.csv file) into the database
 - [ ] Drop unnecessary columns or highly incomplete rows
 - [ ] Set aside a test set of data (stratified sampling) for supervised work
 - [ ] Visualizations
